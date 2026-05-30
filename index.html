@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бизнес ТРИЗ — Матрица противоречий</title>
+    <style>
+        :root {
+            --primary: #1a56db;
+            --primary-light: #e8effc;
+            --primary-dark: #1040a0;
+            --accent: #059669;
+            --accent-light: #d1fae5;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 24px 32px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            opacity: 0.85;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .stepper {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .step-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: var(--border);
+            color: var(--text-muted);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .step-dot.done {
+            background: var(--accent);
+            color: white;
+        }
+
+        .step-arrow {
+            color: var(--border);
+            font-size: 1rem;
+            margin: 0 2px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-size: 0.95rem;
+            color: var(--text);
+            width: 100%;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .option-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .option-btn.selected .option-num {
+            background: var(--primary);
+            color: white;
+        }
+
+        .option-label {
+            flex: 1;
+        }
+
+        .description-box {
+            margin-top: 16px;
+            padding: 14px 16px;
+            background: #fefce8;
+            border: 1px solid #fde68a;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #92400e;
+            display: none;
+        }
+
+        .description-box.visible {
+            display: block;
+        }
+
+        .selection-summary {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--accent-light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #065f46;
+            margin-bottom: 16px;
+        }
+
+        .selection-summary .check {
+            font-size: 1rem;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 28px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-primary:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg);
+        }
+
+        .results-section {
+            animation: fadeIn 0.4s ease;
+        }
+
+        .result-pair {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--primary-light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .result-pair .label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .result-pair .value {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .result-pair .arrow-icon {
+            color: var(--text-muted);
+        }
+
+        .principle-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+
+        .principle-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .principle-header {
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+        }
+
+        .principle-rank {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .rank-1 { background: #fef3c7; color: #92400e; }
+        .rank-2 { background: #e2e8f0; color: #475569; }
+        .rank-3 { background: #fed7aa; color: #9a3412; }
+        .rank-4 { background: #dbeafe; color: #1e40af; }
+
+        .principle-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .principle-number {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: var(--bg);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .principle-toggle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+
+        .principle-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .principle-body {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+        }
+
+        .principle-body.open {
+            max-height: 2000px;
+            padding: 0 20px 20px;
+        }
+
+        .principle-section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            margin-top: 12px;
+        }
+
+        .principle-section-title:first-child {
+            margin-top: 0;
+        }
+
+        .principle-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .principle-list li {
+            padding: 6px 0 6px 16px;
+            position: relative;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text);
+        }
+
+        .principle-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 14px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .rec-list li::before {
+            background: var(--primary);
+        }
+
+        .ex-list li::before {
+            background: var(--accent);
+        }
+
+        .restart-row {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @media (max-width: 600px) {
+            .header { padding: 16px; }
+            .header h1 { font-size: 1.25rem; }
+            .container { padding: 16px 12px; }
+            .card { padding: 16px; }
+            .stepper { gap: 2px; }
+            .step-arrow { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Матрица противоречий для бизнеса</h1>
+        <p>Найдите лучшие приёмы разрешения противоречий по методу ТРИЗ</p>
+    </div>
+
+    <div class="container">
+        <div class="stepper" id="stepper"></div>
+        <div id="app"></div>
+    </div>
+
+    <script>
+    const DATA = {
+        params: null,
+        matrix: null,
+        principles: null
+    };
+
+    const STATE = {
+        step: 1,
+        improveCatId: null,
+        improveParamId: null,
+        worsenCatId: null,
+        worsenParamId: null
+    };
+
+    const STEP_LABELS = [
+        'Категория улучшения',
+        'Параметр улучшения',
+        'Категория ухудшения',
+        'Параметр ухудшения',
+        'Результат'
+    ];
+
+    function getCategoryById(id) {
+        return DATA.params.categories.find(c => c.id === id);
+    }
+
+    function getParamById(id) {
+        for (const cat of DATA.params.categories) {
+            const p = cat.parameters.find(p => p.id === id);
+            if (p) return p;
+        }
+        return null;
+    }
+
+    function getPrincipleById(id) {
+        return DATA.principles.find(p => p.id === id);
+    }
+
+    function renderStepper() {
+        const el = document.getElementById('stepper');
+        el.innerHTML = STEP_LABELS.map((label, i) => {
+            const num = i + 1;
+            let cls = 'step-dot';
+            if (num < STATE.step) cls += ' done';
+            else if (num === STATE.step) cls += ' active';
+            const arrow = i < STEP_LABELS.length - 1 ? '<span class="step-arrow">&rsaquo;</span>' : '';
+            return `<div class="step-indicator"><div class="${cls}">${num < STATE.step ? '&#10003;' : num}</div>${arrow}</div>`;
+        }).join('');
+    }
+
+    function renderApp() {
+        renderStepper();
+        const app = document.getElementById('app');
+
+        switch (STATE.step) {
+            case 1: renderCategorySelect(app, 'improve'); break;
+            case 2: renderParamSelect(app, 'improve'); break;
+            case 3: renderCategorySelect(app, 'worsen'); break;
+            case 4: renderParamSelect(app, 'worsen'); break;
+            case 5: renderResults(app); break;
+        }
+    }
+
+    function renderCategorySelect(container, mode) {
+        const isImprove = mode === 'improve';
+        const title = isImprove ? 'Выберите категорию, которая улучшается' : 'Выберите категорию, которая ухудшается';
+        const selectedId = isImprove ? STATE.improveCatId : STATE.worsenCatId;
+
+        let summaryHtml = '';
+        if (!isImprove && STATE.improveParamId) {
+            const cat = getCategoryById(STATE.improveCatId);
+            const param = getParamById(STATE.improveParamId);
+            summaryHtml = `<div class="selection-summary"><span class="check">&#9650;</span> Улучшается: <strong>${cat.name}</strong> &rarr; ${param.name}</div>`;
+        }
+
+        const CATEGORY_DESCRIPTIONS = {
+            1: 'Параметры, связанные с разработкой продуктов, услуг и решений: требования, стоимость, время, риски и интерфейсы проектирования.',
+            2: 'Параметры, связанные с процессом производства: требования, стоимость, время, риски и интерфейсы производственных операций.',
+            3: 'Параметры, связанные с доставкой продуктов и услуг клиентам: требования, стоимость, время, риски и интерфейсы поставки.',
+            4: 'Параметры, связанные с поддержкой и обслуживанием: требования, стоимость, время, риски и интерфейсы послепродажной поддержки.',
+            5: 'Параметры, связанные с клиентами: доход, требования рынка, обратная связь и лояльность.',
+            6: 'Параметры системного уровня: информация, коммуникации, удобство, адаптивность, сложность, стресс и стабильность.',
+            7: 'Нематериальные параметры: автономность, принадлежность, компетентность, прогресс, эффекты, доверие, вовлечённость и смысл.',
+            8: 'Параметры, связанные с измерением: возможность и точность измерения бизнес-процессов.',
+            9: 'Вредные факторы: негативные воздействия на систему и создаваемые системой.'
+        };
+
+        container.innerHTML = `
+            <div class="step-content">
+                ${summaryHtml}
+                <div class="card">
+                    <div class="card-title">${title}</div>
+                    <div class="option-list">
+                        ${DATA.params.categories.map(cat => `
+                            <button class="option-btn ${selectedId === cat.id ? 'selected' : ''}"
+                                    onclick="selectCategory('${mode}', ${cat.id})">
+                                <span class="option-num">${cat.id}</span>
+                                <span class="option-label">${cat.name}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="description-box ${selectedId ? 'visible' : ''}" id="catDesc">
+                        ${selectedId ? CATEGORY_DESCRIPTIONS[selectedId] || '' : ''}
+                    </div>
+                    <div class="btn-row">
+                        ${STATE.step > 1 ? '<button class="btn btn-secondary" onclick="goBack()">Назад</button>' : ''}
+                        <button class="btn btn-primary" id="confirmBtn" ${!selectedId ? 'disabled' : ''} onclick="confirmStep()">Подтвердить</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        window.CATEGORY_DESCRIPTIONS = CATEGORY_DESCRIPTIONS;
+    }
+
+    function renderParamSelect(container, mode) {
+        const isImprove = mode === 'improve';
+        const catId = isImprove ? STATE.improveCatId : STATE.worsenCatId;
+        const cat = getCategoryById(catId);
+        const selectedId = isImprove ? STATE.improveParamId : STATE.worsenParamId;
+        const title = isImprove
+            ? `Выберите параметр, который улучшается`
+            : `Выберите параметр, который ухудшается`;
+
+        let summaryHtml = '';
+        if (isImprove) {
+            summaryHtml = `<div class="selection-summary"><span class="check">&#9650;</span> Категория: <strong>${cat.name}</strong></div>`;
+        } else {
+            const impCat = getCategoryById(STATE.improveCatId);
+            const impParam = getParamById(STATE.improveParamId);
+            summaryHtml = `
+                <div class="selection-summary"><span class="check">&#9650;</span> Улучшается: <strong>${impCat.name}</strong> &rarr; ${impParam.name}</div>
+                <div class="selection-summary"><span class="check">&#9660;</span> Категория ухудшения: <strong>${cat.name}</strong></div>
+            `;
+        }
+
+        container.innerHTML = `
+            <div class="step-content">
+                ${summaryHtml}
+                <div class="card">
+                    <div class="card-title">${title}</div>
+                    <div class="card-subtitle">Категория: ${cat.name}</div>
+                    <div class="option-list">
+                        ${cat.parameters.map(p => `
+                            <button class="option-btn ${selectedId === p.id ? 'selected' : ''}"
+                                    onclick="selectParam('${mode}', ${p.id})">
+                                <span class="option-num">${p.id}</span>
+                                <span class="option-label">${p.name}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="description-box ${selectedId ? 'visible' : ''}" id="paramDesc">
+                        ${selectedId ? getParamById(selectedId).name : ''}
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn btn-secondary" onclick="goBack()">Назад</button>
+                        <button class="btn btn-primary" id="confirmBtn" ${!selectedId ? 'disabled' : ''} onclick="confirmStep()">Подтвердить</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderResults(container) {
+        const impCat = getCategoryById(STATE.improveCatId);
+        const impParam = getParamById(STATE.improveParamId);
+        const worCat = getCategoryById(STATE.worsenCatId);
+        const worParam = getParamById(STATE.worsenParamId);
+
+        const key = `${STATE.improveParamId}_${STATE.worsenParamId}`;
+        const principleIds = DATA.matrix[key] || [];
+
+        const rankColors = ['rank-1', 'rank-2', 'rank-3', 'rank-4'];
+
+        let principlesHtml = '';
+        if (principleIds.length === 0) {
+            principlesHtml = '<div class="card"><p>Для данной комбинации параметров приёмы не определены.</p></div>';
+        } else {
+            principlesHtml = principleIds.map((pid, idx) => {
+                const pr = getPrincipleById(pid);
+                if (!pr) return '';
+
+                const recs = pr.recommendations || [];
+                const exs = pr.examples || [];
+
+                return `
+                    <div class="principle-card">
+                        <div class="principle-header" onclick="togglePrinciple(this)">
+                            <div class="principle-rank ${rankColors[idx]}">${idx + 1}</div>
+                            <div class="principle-name">${pr.name}</div>
+                            <div class="principle-number">Приём #${pr.id}</div>
+                            <div class="principle-toggle">&#9660;</div>
+                        </div>
+                        <div class="principle-body">
+                            ${recs.length > 0 ? `
+                                <div class="principle-section-title">Рекомендации</div>
+                                <ul class="principle-list rec-list">
+                                    ${recs.map(r => `<li>${r}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                            ${exs.length > 0 ? `
+                                <div class="principle-section-title">Примеры</div>
+                                <ul class="principle-list ex-list">
+                                    ${exs.map(e => `<li>${e}</li>`).join('')}
+                                </ul>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        container.innerHTML = `
+            <div class="results-section">
+                <div class="result-pair">
+                    <span class="label">Улучшается:</span>
+                    <span class="value">${impCat.name} &rarr; ${impParam.name}</span>
+                    <span class="arrow-icon">&nbsp;|&nbsp;</span>
+                    <span class="label">Ухудшается:</span>
+                    <span class="value">${worCat.name} &rarr; ${worParam.name}</span>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Рекомендуемые приёмы разрешения противоречия</div>
+                    <div class="card-subtitle">Приёмы отсортированы по частоте применения: первый — наиболее часто используемый</div>
+                </div>
+
+                ${principlesHtml}
+
+                <div class="restart-row">
+                    <button class="btn btn-secondary" onclick="goBack()">Назад</button>
+                    &nbsp;
+                    <button class="btn btn-primary" onclick="restart()">Начать заново</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function selectCategory(mode, catId) {
+        if (mode === 'improve') {
+            STATE.improveCatId = catId;
+        } else {
+            STATE.worsenCatId = catId;
+        }
+        renderApp();
+    }
+
+    function selectParam(mode, paramId) {
+        if (mode === 'improve') {
+            STATE.improveParamId = paramId;
+        } else {
+            STATE.worsenParamId = paramId;
+        }
+        renderApp();
+    }
+
+    function confirmStep() {
+        if (STATE.step === 4 && STATE.worsenParamId === STATE.improveParamId) {
+            alert('Улучшаемый и ухудшаемый параметры не могут совпадать. Выберите другой параметр.');
+            return;
+        }
+        STATE.step++;
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goBack() {
+        if (STATE.step > 1) {
+            STATE.step--;
+            renderApp();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    function restart() {
+        STATE.step = 1;
+        STATE.improveCatId = null;
+        STATE.improveParamId = null;
+        STATE.worsenCatId = null;
+        STATE.worsenParamId = null;
+        renderApp();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function togglePrinciple(header) {
+        const body = header.nextElementSibling;
+        const toggle = header.querySelector('.principle-toggle');
+        body.classList.toggle('open');
+        toggle.classList.toggle('open');
+    }
+
+    async function loadData() {
+        const [paramsRes, matrixRes, principlesRes] = await Promise.all([
+            fetch('data/params_compact.json'),
+            fetch('data/matrix_compact.json'),
+            fetch('data/principles_compact.json')
+        ]);
+        DATA.params = await paramsRes.json();
+        DATA.matrix = await matrixRes.json();
+        DATA.principles = await principlesRes.json();
+        renderApp();
+    }
+
+    loadData();
+    </script>
+</body>
+</html>
